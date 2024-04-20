@@ -1,105 +1,120 @@
 const restify = require('restify');
 
 var server = restify.createServer({
-    name: 'pratica-2',
+    name: 'pratica-3-MatheusJulidori',
 });
-
-const defaultName = 'Matheus Julidori - GES66';
-
 server.use(restify.plugins.bodyParser());
-server.use(restify.plugins.queryParser());
 
-server.get('/api/v1/hello', function(req, res) {
-    let name = defaultName;
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send('Hello ' + name);
+/*-----------------------------Alunos-----------------------------*/
+let alunos = [];
+
+
+server.post('/api/v1/aluno/inserir', (req, res, next) => {
+    const { nome, curso, dataNascimento } = req.body;
+
+    const novoAluno = {
+        id: alunos.length + 1, 
+        nome,
+        curso,
+        dataNascimento
+    };
+
+    alunos.push(novoAluno);
+
+    res.send(201, novoAluno);
+    return next();
 });
 
-server.get('/api/v1/params/:name', function(req, res, next) {
-    let name = req.params.name;
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send('Parametro passado na rota: ' + name);
-    next();
+server.get('/api/v1/aluno/listar', (req, res, next) => {
+    res.send(alunos);
+    return next();
 });
 
-server.get('/api/v1/query', function(req, res) {
-    let name = req.query.name;
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send('Query passado na requisição: ' + name);
-});
+server.post('/api/v1/aluno/atualizar', (req, res, next) => {
+    const { id, nome, curso, dataNascimento } = req.body;
 
-server.post('/', function(req, res) {
-    let name = defaultName;
-    if(req.body){
-        name = req.body.name;
+    const alunoIndex = alunos.findIndex(aluno => aluno.id === id);
+    if (alunoIndex === -1) {
+        res.send(404, { message: 'Aluno não encontrado' });
+    } else {
+        alunos[alunoIndex] = { id, nome, curso, dataNascimento };
+        res.send(200, alunos[alunoIndex]);
     }
-    res.setHeader('Content-Type', 'text/html');
-    const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>HomePage Post Test</title>
-        </head>
-        <body>
-            <h1>Obtendo o body da requisição: ${name} foi passado</h1>
-        </body>
-        </html>
-    `;
-    res.write(html);
-    res.end();
-})
 
-server.get('/', function(req, res) {
-    let name = defaultName;
-    res.setHeader('Content-Type', 'text/html');
-    const html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Minha API com restify.js</title>
-        </head>
-        <body>
-            <h1>Página HTML de ${name}</h1>
-            <p>Esta página é apenas um exemplo</p>
-        </body>
-        </html>
-    `;
-    res.write(html);
-    res.end();
-})
+    return next();
+});
 
-// ============================= BONUS =============================
-var repositorio = [];
-server.post('/api/v1/add', function(req, res, next) {
-    repositorio.push(req.body);
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send(201, { message: 'Resource created' });
-    next();
-});
-server.get('/api/v1/list', function(req, res, next) {
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send(repositorio);
-    next();
-});
-server.del('/api/v1/list', function(req, res, next) {
-    repositorio = [];
-    res.setHeader('Content-Type', 'application/json');
-    res.charSet('UTF-8');
-    res.send(200, { message: 'Resource deleted' });
-    next();
-});
-// ============================= BONUS =============================
+server.post('/api/v1/aluno/excluir', (req, res, next) => {
+    const { id } = req.body;
 
+    const alunoIndex = alunos.findIndex(aluno => aluno.id === id);
+    if (alunoIndex === -1) {
+        res.send(404, { message: 'Aluno não encontrado' });
+    } else {
+        alunos.splice(alunoIndex, 1);
+        res.send(200, { message: 'Aluno excluído com sucesso' });
+    }
+
+    return next();
+});
+
+/*-----------------------------Professor-----------------------------*/
+let professores = [];
+
+server.post('/api/v1/professor/inserir', (req, res, next) => {
+    const { nome, disciplina, email } = req.body;
+
+    const novoProfessor = {
+        id: professores.length + 1, 
+        nome,
+        disciplina,
+        email
+    };
+
+    professores.push(novoProfessor);
+
+    res.send(201, novoProfessor);
+    return next();
+});
+
+server.get('/api/v1/professor/listar', (req, res, next) => {
+    res.send(professores);
+    return next();
+});
+
+server.post('/api/v1/professor/atualizar', (req, res, next) => {
+    const { id, nome, disciplina, email } = req.body;
+
+    const professorIndex = professores.findIndex(professor => professor.id === id);
+    if (professorIndex === -1) {
+        res.send(404, { message: 'Professor não encontrado' });
+    } else {
+        professores[professorIndex] = { id, nome, disciplina, email };
+        res.send(200, professores[professorIndex]);
+    }
+
+    return next();
+});
+
+server.post('/api/v1/professor/excluir', (req, res, next) => {
+    const { id } = req.body;
+
+    const professorIndex = professores.findIndex(professor => professor.id === id);
+    if (professorIndex === -1) {
+        res.send(404, { message: 'Professor não encontrado' });
+    } else {
+        professores.splice(professorIndex, 1);
+        res.send(200, { message: 'Professor excluído com sucesso' });
+    }
+
+    return next();
+});
+
+
+
+
+// iniciar o servidor
 var port = process.env.PORT || 5000;
 server.listen(port, function() {
-    console.log('Server ', server.name, ' listening on http://localhost:' + port);
+    console.log('Servidor iniciado', server.name, ' na url http://localhost:' + port);
 })
