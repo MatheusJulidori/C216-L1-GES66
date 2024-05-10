@@ -87,7 +87,7 @@ server.post('/api/v1/professor/excluir', async (req, res, next) => {
         if (result.rowCount === 0) {
             res.send(404, { message: 'Professor não encontrado' });
         } else {
-            res.send(204);
+            res.send(200, { message: 'Professor excluído com sucesso' });
             console.log('Professor excluído com sucesso');
         }
     } catch (error) {
@@ -102,8 +102,7 @@ server.del('/api/v1/database/reset', async (req, res, next) => {
     try {
         await pool.query('DROP TABLE IF EXISTS professores');
         await pool.query('CREATE TABLE IF NOT EXISTS professores (id SERIAL PRIMARY KEY, nome VARCHAR(255) NOT NULL, disciplina VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL)');
-        res.send(204);
-        console.log('Banco de dados resetado com sucesso');
+        res.send(200, { message: 'Banco de dados resetado com sucesso' });        console.log('Banco de dados resetado com sucesso');
     } catch (error) {
         res.send(500, { message: 'Erro ao resetar banco de dados' });
         console.error('Erro ao resetar banco de dados:', error);
